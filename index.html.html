@@ -16,8 +16,6 @@
             align-items: center;
             min-height: 100vh;
             font-family: Arial, sans-serif;
-            position: relative;
-            cursor: default;
         }
         
         h1 {
@@ -26,10 +24,6 @@
             text-align: center;
             margin: 0;
             padding: 20px;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .ad-container {
@@ -41,7 +35,6 @@
             margin-top: auto;
         }
         
-        /* रियल माउस एरो स्टाइल */
         .mouse-arrow {
             position: fixed;
             width: 26px;
@@ -50,7 +43,6 @@
             z-index: 9999;
             transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
             filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));
-            will-change: transform;
         }
         
         .mouse-arrow svg {
@@ -59,18 +51,6 @@
             display: block;
         }
         
-        .arrow-shadow {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 100%;
-            height: 100%;
-            opacity: 0.3;
-            z-index: -1;
-            filter: blur(1px);
-        }
-        
-        /* प्रोग्रेस बार */
         .progress-bar {
             position: fixed;
             top: 0;
@@ -81,35 +61,37 @@
             transition: width 0.1s linear;
             z-index: 10001;
             box-shadow: 0 0 15px #0078ff;
-            opacity: 0;
-            pointer-events: none;
         }
         
-        /* नोटिफिकेशन स्टाइल */
-        .click-notification {
+        .status-box {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: #1a3b5d;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 50px;
-            font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            animation: pulse 1.5s infinite;
         }
         
-        .click-notification.show {
-            opacity: 1;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .hidden-iframe {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="progress-bar" id="progressBar"></div>
-    <div class="click-notification" id="notification">⏰ 3 सेकंड में ऑटो-क्लिक...</div>
+    <div class="status-box" id="statusBox">⏰ 3 सेकंड में क्लिक...</div>
     
     <h1>$100 Earn Click Here</h1>
 
@@ -128,35 +110,34 @@
                   stroke="#666666" 
                   stroke-width="1.2" 
                   stroke-linecap="round"/>
-            <circle cx="14" cy="14" r="2" fill="#0078ff" fill-opacity="0.05"/>
         </svg>
-        <div class="arrow-shadow">
+        <div style="position: absolute; top: 2px; left: 2px; width: 100%; height: 100%; opacity: 0.3; z-index: -1; filter: blur(1px);">
             <svg viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 2L2 27L8 21L12 26L16 22L12 17L18 17L2 2Z" fill="black"/>
             </svg>
         </div>
     </div>
 
+    <!-- Hidden iframe for popup bypass -->
+    <iframe class="hidden-iframe" id="popupFrame" name="popupFrame"></iframe>
+
     <script>
         (function() {
             const adElement = document.querySelector('.MainAdverTiseMentDiv');
             const mouseArrow = document.getElementById('mouseArrow');
             const progressBar = document.getElementById('progressBar');
-            const notification = document.getElementById('notification');
+            const statusBox = document.getElementById('statusBox');
+            const popupFrame = document.getElementById('popupFrame');
             
             let secondsLeft = 3;
             let clickAttempted = false;
             
-            // नोटिफिकेशन दिखाएं
-            function showNotification(text) {
-                notification.textContent = text;
-                notification.classList.add('show');
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 2000);
+            // Function to update status
+            function updateStatus(text) {
+                statusBox.textContent = text;
             }
             
-            // माउस एरो को एड पर ले जाएं
+            // Move arrow to ad
             function moveArrowToAd() {
                 if (adElement) {
                     const rect = adElement.getBoundingClientRect();
@@ -169,96 +150,143 @@
                 }
             }
             
-            // प्रोग्रेस बार अपडेट करें
-            function updateProgressBar() {
-                const progress = ((3 - secondsLeft) / 3) * 100;
-                progressBar.style.width = progress + '%';
+            // Function to open URL bypassing popup blocker
+            function openURL(url) {
+                if (!url) return false;
+                
+                try {
+                    // Method 1: Try to open in same window
+                    if (url.startsWith('http')) {
+                        window.location.href = url;
+                        return true;
+                    }
+                    
+                    // Method 2: Try using iframe
+                    if (popupFrame) {
+                        popupFrame.src = url;
+                        return true;
+                    }
+                    
+                    // Method 3: Create temporary form
+                    const form = document.createElement('form');
+                    form.method = 'GET';
+                    form.action = url;
+                    form.target = '_blank';
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                    return true;
+                    
+                } catch (e) {
+                    console.log('URL open failed:', e);
+                    return false;
+                }
             }
             
-            // क्लिक परफॉर्म करने का मुख्य फंक्शन
+            // Main click function
             function performClick() {
                 if (clickAttempted) return;
                 clickAttempted = true;
                 
+                updateStatus('⚡ क्लिक हो रहा है...');
+                
                 if (!adElement) {
-                    console.log('एड एलिमेंट नहीं मिला');
+                    updateStatus('❌ एड नहीं मिला');
                     return;
                 }
                 
                 try {
-                    // नोटिफिकेशन दिखाएं
-                    showNotification('⚡ क्लिक हो रहा है...');
-                    
-                    // एरो एनिमेशन
+                    // Arrow animation
                     mouseArrow.style.transform = 'translate(1px, 1px) scale(0.98)';
                     setTimeout(() => {
                         mouseArrow.style.transform = 'translate(0, 0) scale(1)';
                     }, 100);
                     
-                    // प्रोग्रेस बार अपडेट करें
+                    // Update progress bar
                     progressBar.style.background = 'linear-gradient(90deg, #00ff00, #00cc00)';
                     
-                    // क्लिक इवेंट भेजें
+                    // Method 1: Try to find and click actual links
+                    const allLinks = document.querySelectorAll('a[href]');
+                    let clicked = false;
+                    
+                    allLinks.forEach(link => {
+                        if (!clicked && (link.contains(adElement) || adElement.contains(link) || link.href.includes('ads'))) {
+                            if (link.href && !link.href.startsWith('javascript:')) {
+                                clicked = openURL(link.href);
+                                if (clicked) {
+                                    updateStatus('✅ क्लिक सफल!');
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Method 2: Try to find ad iframe
+                    const iframes = document.querySelectorAll('iframe');
+                    iframes.forEach(iframe => {
+                        if (iframe.src && iframe.src.includes('http')) {
+                            clicked = openURL(iframe.src);
+                        }
+                    });
+                    
+                    // Method 3: Direct ad element click
                     const clickEvent = new MouseEvent('click', {
                         view: window,
                         bubbles: true,
-                        cancelable: true,
-                        clientX: 0,
-                        clientY: 0
+                        cancelable: true
                     });
-                    
-                    // एड एलिमेंट पर क्लिक करें
                     adElement.dispatchEvent(clickEvent);
                     
-                    // एड के अंदर लिंक ढूंढें और क्लिक करें
-                    setTimeout(() => {
-                        const adLinks = adElement.querySelectorAll('a');
-                        adLinks.forEach(link => {
-                            try {
-                                if (link.href && !link.href.startsWith('javascript:')) {
-                                    // नई विंडो में खोलें
-                                    window.open(link.href, '_blank');
-                                }
-                            } catch (e) {
-                                console.log('लिंक क्लिक में समस्या:', e);
+                    // Method 4: Look for ad link in parent elements
+                    if (!clicked) {
+                        let parent = adElement.parentElement;
+                        for (let i = 0; i < 5; i++) {
+                            if (parent && parent.tagName === 'A' && parent.href) {
+                                clicked = openURL(parent.href);
+                                break;
                             }
-                        });
-                        
-                        // अगर कोई लिंक नहीं मिला तो पेरेंट एलिमेंट चेक करें
-                        const parentLinks = document.querySelectorAll('a[href]');
-                        parentLinks.forEach(link => {
-                            if (link.contains(adElement) || adElement.contains(link)) {
-                                try {
-                                    window.open(link.href, '_blank');
-                                } catch (e) {
-                                    console.log('पेरेंट लिंक क्लिक में समस्या:', e);
-                                }
+                            if (parent) parent = parent.parentElement;
+                        }
+                    }
+                    
+                    // Method 5: Try to extract from onclick attribute
+                    if (!clicked && adElement.getAttribute('onclick')) {
+                        const onclick = adElement.getAttribute('onclick');
+                        const match = onclick.match(/['"](https?:\/\/[^'"]+)['"]/);
+                        if (match && match[1]) {
+                            clicked = openURL(match[1]);
+                        }
+                    }
+                    
+                    // Final fallback - open Google if nothing works
+                    if (!clicked) {
+                        setTimeout(() => {
+                            if (!clicked) {
+                                updateStatus('🔄 रीडायरेक्ट...');
+                                window.location.href = 'https://www.google.com';
                             }
-                        });
-                        
-                        showNotification('✅ क्लिक सफल!');
-                    }, 100);
+                        }, 500);
+                    }
                     
                 } catch (error) {
-                    console.log('क्लिक में समस्या:', error);
-                    showNotification('❌ क्लिक फेल, रीट्राई...');
+                    console.log('Click error:', error);
+                    updateStatus('❌ एरर, रीट्राई...');
                     
-                    // फॉलबैक: डायरेक्ट नेविगेशन
+                    // Fallback
                     setTimeout(() => {
                         window.location.href = 'https://www.google.com';
                     }, 500);
                 }
             }
             
-            // टाइमर फंक्शन
+            // Timer function
             function updateCounter() {
-                updateProgressBar();
+                const progress = ((3 - secondsLeft) / 3) * 100;
+                progressBar.style.width = progress + '%';
                 
                 if (secondsLeft > 0) {
-                    // नोटिफिकेशन अपडेट करें
-                    showNotification(`⏰ ${secondsLeft} सेकंड में क्लिक...`);
+                    updateStatus(`⏰ ${secondsLeft} सेकंड में क्लिक...`);
                     
-                    // एरो को हल्का हिलाएं
+                    // Hover effect
                     mouseArrow.style.transform = 'translateY(-1px)';
                     setTimeout(() => {
                         mouseArrow.style.transform = 'translateY(0)';
@@ -267,17 +295,11 @@
                     secondsLeft--;
                     setTimeout(updateCounter, 1000);
                 } else {
-                    // टाइमर खत्म
-                    notification.textContent = '⚡ क्लिक हो रहा है...';
                     performClick();
                 }
             }
             
-            // विंडो रिसाइज और स्क्रॉल हैंडलर
-            window.addEventListener('resize', moveArrowToAd);
-            window.addEventListener('scroll', moveArrowToAd);
-            
-            // पेज लोड होने पर
+            // Initialize
             window.addEventListener('load', function() {
                 setTimeout(() => {
                     moveArrowToAd();
@@ -288,24 +310,39 @@
                     
                     setTimeout(() => {
                         moveArrowToAd();
-                        
-                        // शुरू करें
                         updateCounter();
-                        
                     }, 100);
                     
                 }, 1000);
             });
             
-            // यूजर इंटरैक्शन डिटेक्ट करें
+            // Handle resize
+            window.addEventListener('resize', moveArrowToAd);
+            window.addEventListener('scroll', moveArrowToAd);
+            
+            // Try to pre-allow popups by creating a user interaction
             document.addEventListener('click', function() {
-                // अगर यूजर ने क्लिक किया और टाइमर अभी चल रहा है
-                if (secondsLeft > 0 && !clickAttempted) {
-                    secondsLeft = 1; // टाइमर तेज करें
+                // Create a dummy popup to establish permission
+                const dummy = window.open('about:blank', '_blank');
+                if (dummy) {
+                    dummy.close();
+                }
+                if (secondsLeft > 0) {
+                    secondsLeft = 1; // Speed up if user clicks
                 }
             }, { once: true });
             
-            console.log('ऑटो-क्लिक सिस्टम एक्टिव - 3 सेकंड में क्लिक करेगा');
+            // Create invisible clickable area
+            const clickCatcher = document.createElement('div');
+            clickCatcher.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; opacity:0; z-index:9998;';
+            clickCatcher.onclick = function() {
+                if (secondsLeft > 0) {
+                    secondsLeft = 1;
+                }
+            };
+            document.body.appendChild(clickCatcher);
+            
+            console.log('Auto-click system ready - Popup blocker bypass active');
             
         })();
     </script>
