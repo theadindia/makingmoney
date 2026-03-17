@@ -4,13 +4,14 @@
     <script src="https://adsfire.online/assets/ads/ad.js" class="adScriptClass"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life is Great</title>
+    <title>$100 Earn Click Here</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             background-color: #f0f4f8;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -23,10 +24,82 @@
             text-align: center;
             margin: 0;
             padding: 20px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+        
+        /* ऑटो क्लिक के लिए डमी बटन (टेस्टिंग के लिए) */
+        #autoClickStatus {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Life is Great</h1>
+    <h1>$100 Earn Click Here</h1>
+
+    <!-- एड कंटेनर -->
+    <div class="ad-container">
+        <div class='MainAdverTiseMentDiv' id="adElement" data-publisher="eyJpdiI6IjNBc1BlTzBEeEZBaHBLMlo1SmdBREE9PSIsInZhbHVlIjoieXhRUkRXVmU1YmkraWJkdU1xcDNkQT09IiwibWFjIjoiMDNkN2RjMWI2OThhZThmMWQzMjdjOTc0Zjc0ZjNkY2E5YTg3OTMwYzFjNTVjOTQ1NmE0MDRhNGM2YjBlZDQ5NyIsInRhZyI6IiJ9" data-adsize="250x250"></div>
+    </div>
+    
+    <!-- स्टेटस डिस्प्ले (टेस्टिंग के लिए) -->
+    <div id="autoClickStatus">⏱️ 3 सेकंड में ऑटो क्लिक होगा...</div>
+
+    <script>
+        // ⚠️ चेतावनी: यह सिर्फ डेमो/सीखने के लिए है
+        console.warn('ऑटो क्लिक स्क्रिप्ट एक्टिव - 3 सेकंड बाद एड क्लिक होगा');
+        
+        // 3 सेकंड बाद फंक्शन चलाएँ
+        setTimeout(function() {
+            const adElement = document.querySelector('.MainAdverTiseMentDiv');
+            
+            if (adElement) {
+                // स्टेटस अपडेट करें
+                document.getElementById('autoClickStatus').style.display = 'block';
+                document.getElementById('autoClickStatus').innerHTML = '🖱️ ऑटो क्लिक हो रहा है...';
+                
+                // 1. क्लिक इवेंट भेजें
+                const clickEvent = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+                adElement.dispatchEvent(clickEvent);
+                
+                // 2. अगर एड लिंक है तो रीडायरेक्ट करें
+                // नोट: ज्यादातर एड्स iframe में लोड होते हैं, 
+                // इसलिए यह काम नहीं करेगा अगर एड iframe में है
+                
+                // 3. कुछ एड्स के लिए - उनके अंदर के लिंक को ढूंढें
+                const adLinks = adElement.querySelectorAll('a');
+                if (adLinks.length > 0) {
+                    // पहले लिंक पर क्लिक करें
+                    adLinks[0].click();
+                }
+                
+                // स्टेटस अपडेट
+                setTimeout(function() {
+                    document.getElementById('autoClickStatus').innerHTML = '✅ ऑटो क्लिक पूरा!';
+                }, 500);
+            }
+        }, 3000); // 3000 मिलीसेकंड = 3 सेकंड
+        
+        // यूजर को सूचना
+        alert('डेमो मोड: 3 सेकंड में एड पर ऑटो क्लिक होगा!');
+    </script>
 </body>
 </html>
