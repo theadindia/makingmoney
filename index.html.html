@@ -72,35 +72,10 @@
             filter: blur(1px);
         }
         
-        /* क्लिक इफेक्ट */
-        .click-effect {
-            position: fixed;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(0, 120, 255, 0.2);
-            border: 2px solid #0078ff;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 9998;
-            animation: clickRipple 0.4s ease-out forwards;
-            box-shadow: 0 0 20px rgba(0, 120, 255, 0.5);
-        }
+        /* क्लिक रिपल इफेक्ट - पूरी तरह हटा दिया गया */
+        /* .click-effect क्लास हटा दी गई */
         
-        @keyframes clickRipple {
-            0% {
-                transform: translate(-50%, -50%) scale(0.3);
-                opacity: 0.8;
-                border-width: 3px;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(2);
-                opacity: 0;
-                border-width: 1px;
-            }
-        }
-        
-        /* प्रोग्रेस बार - अब हिडन */
+        /* प्रोग्रेस बार - हिडन */
         .progress-bar {
             position: fixed;
             top: 0;
@@ -111,55 +86,16 @@
             transition: width 0.1s linear;
             z-index: 10001;
             box-shadow: 0 0 15px #0078ff;
-            opacity: 0; /* हिडन */
+            opacity: 0;
             pointer-events: none;
         }
         
-        /* एड हाइलाइट इफेक्ट */
-        .ad-highlight {
-            position: absolute;
-            border: 2px solid #0078ff;
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0, 120, 255, 0.3);
-            animation: pulse 1.5s infinite;
-            pointer-events: none;
-            z-index: 9997;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 20px rgba(0, 120, 255, 0.3);
-                border-color: rgba(0, 120, 255, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(0, 120, 255, 0.6);
-                border-color: rgba(0, 120, 255, 1);
-            }
-            100% {
-                box-shadow: 0 0 20px rgba(0, 120, 255, 0.3);
-                border-color: rgba(0, 120, 255, 0.5);
-            }
-        }
-        
-        /* ट्रेल इफेक्ट */
-        .mouse-trail {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(0, 120, 255, 0.2);
-            pointer-events: none;
-            z-index: 9996;
-            transition: all 0.1s ease;
-            filter: blur(2px);
-        }
+        /* काउंटर - पूरी तरह हटा दिया गया */
     </style>
 </head>
 <body>
-    <!-- प्रोग्रेस बार (अब हिडन) -->
+    <!-- प्रोग्रेस बार (हिडन) -->
     <div class="progress-bar" id="progressBar"></div>
-    
-    <!-- काउंटर डिस्प्ले पूरी तरह हटा दिया गया -->
     
     <h1>$100 Earn Click Here</h1>
 
@@ -182,8 +118,8 @@
                   stroke="#666666" 
                   stroke-width="1.2" 
                   stroke-linecap="round"/>
-            <!-- हाइलाइट इफेक्ट -->
-            <circle cx="14" cy="14" r="2" fill="#0078ff" fill-opacity="0.2"/>
+            <!-- हाइलाइट इफेक्ट (बहुत हल्का, लगभग अदृश्य) -->
+            <circle cx="14" cy="14" r="2" fill="#0078ff" fill-opacity="0.05"/>
         </svg>
         <!-- शैडो के लिए डुप्लिकेट -->
         <div class="arrow-shadow">
@@ -193,37 +129,16 @@
         </div>
     </div>
     
-    <!-- क्लिक इफेक्ट कंटेनर -->
-    <div id="clickEffect"></div>
-    
-    <!-- माउस ट्रेल कंटेनर -->
-    <div id="mouseTrail"></div>
-    
-    <!-- एड हाइलाइट -->
-    <div class="ad-highlight" id="adHighlight"></div>
+    <!-- क्लिक रिपल कंटेनर - पूरी तरह हटा दिया गया -->
+    <!-- काउंटर - पूरी तरह हटा दिया गया -->
 
     <script>
         // एड एलिमेंट को ढूंढें
         const adElement = document.querySelector('.MainAdverTiseMentDiv');
         const mouseArrow = document.getElementById('mouseArrow');
-        const clickEffect = document.getElementById('clickEffect');
         const progressBar = document.getElementById('progressBar');
-        const adHighlight = document.getElementById('adHighlight');
-        const mouseTrail = document.getElementById('mouseTrail');
         
         let secondsLeft = 3;
-        let trailPoints = [];
-        
-        // एड हाइलाइट अपडेट करें
-        function updateAdHighlight() {
-            if (adElement) {
-                const rect = adElement.getBoundingClientRect();
-                adHighlight.style.left = rect.left + 'px';
-                adHighlight.style.top = rect.top + 'px';
-                adHighlight.style.width = rect.width + 'px';
-                adHighlight.style.height = rect.height + 'px';
-            }
-        }
         
         // माउस एरो को एड की पोजीशन पर ले जाएं (स्मूथ मूवमेंट)
         function moveArrowToAd() {
@@ -236,69 +151,10 @@
                 mouseArrow.style.transition = 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
                 mouseArrow.style.left = targetX + 'px';
                 mouseArrow.style.top = targetY + 'px';
-                
-                // ट्रेल इफेक्ट के लिए पॉइंट्स जोड़ें
-                addTrailPoint(targetX + 13, targetY + 20);
             }
         }
         
-        // ट्रेल इफेक्ट के लिए पॉइंट जोड़ें
-        function addTrailPoint(x, y) {
-            trailPoints.push({x, y, life: 1});
-            
-            // ट्रेल अपडेट करें
-            updateTrail();
-        }
-        
-        // ट्रेल अपडेट करें
-        function updateTrail() {
-            // पुराने ट्रेल हटाएं
-            mouseTrail.innerHTML = '';
-            
-            // नए ट्रेल बनाएं
-            trailPoints.forEach((point, index) => {
-                if (point.life > 0) {
-                    const trail = document.createElement('div');
-                    trail.className = 'mouse-trail';
-                    trail.style.left = point.x + 'px';
-                    trail.style.top = point.y + 'px';
-                    trail.style.opacity = point.life;
-                    trail.style.transform = `scale(${point.life})`;
-                    mouseTrail.appendChild(trail);
-                    
-                    // लाइफ कम करें
-                    point.life -= 0.1;
-                }
-            });
-            
-            // डेड ट्रेल हटाएं
-            trailPoints = trailPoints.filter(point => point.life > 0);
-            
-            // एनिमेशन जारी रखें
-            if (trailPoints.length > 0) {
-                requestAnimationFrame(updateTrail);
-            }
-        }
-        
-        // क्लिक इफेक्ट दिखाएं
-        function showClickEffect(x, y) {
-            // क्लिक रिपल इफेक्ट
-            const effect = document.createElement('div');
-            effect.className = 'click-effect';
-            effect.style.left = x + 'px';
-            effect.style.top = y + 'px';
-            document.body.appendChild(effect);
-            
-            // छोटा सा शेक इफेक्ट एरो में
-            mouseArrow.style.transform = 'translate(1px, 1px) scale(0.95)';
-            setTimeout(() => {
-                mouseArrow.style.transform = 'translate(0, 0) scale(1)';
-            }, 100);
-            
-            setTimeout(() => {
-                effect.remove();
-            }, 400);
-        }
+        // क्लिक रिपल इफेक्ट फंक्शन - पूरी तरह हटा दिया गया
         
         // काउंटर अपडेट करें (अब सिर्फ internally)
         function updateCounter() {
@@ -318,17 +174,12 @@
         // क्लिक परफॉर्म करें
         function performClick() {
             if (adElement) {
-                // कोई मैसेज नहीं दिखेगा - सिर्फ क्लिक इफेक्ट
+                // कोई इफेक्ट नहीं दिखेगा - सिर्फ क्लिक होगा
                 
-                // एड की पोजीशन पर क्लिक इफेक्ट दिखाएं
-                const rect = adElement.getBoundingClientRect();
-                const clickX = rect.left + (rect.width / 2);
-                const clickY = rect.top + (rect.height / 2);
-                
-                // कई बार क्लिक इफेक्ट (रियलिस्टिक)
-                showClickEffect(clickX, clickY);
+                // एरो में हल्का सा शेक इफेक्ट (बहुत हल्का)
+                mouseArrow.style.transform = 'translate(1px, 1px) scale(0.98)';
                 setTimeout(() => {
-                    showClickEffect(clickX, clickY);
+                    mouseArrow.style.transform = 'translate(0, 0) scale(1)';
                 }, 100);
                 
                 // क्लिक इवेंट भेजें
@@ -355,20 +206,17 @@
         // विंडो रिसाइज होने पर पोजीशन अपडेट करें
         window.addEventListener('resize', () => {
             moveArrowToAd();
-            updateAdHighlight();
         });
         
         // स्क्रॉल होने पर भी अपडेट करें
         window.addEventListener('scroll', () => {
             moveArrowToAd();
-            updateAdHighlight();
         });
         
         // पेज लोड होने पर
         window.addEventListener('load', function() {
             // थोड़ी देर बाद एरो को पोजीशन करें
             setTimeout(() => {
-                updateAdHighlight();
                 moveArrowToAd();
                 
                 // पहले एरो को ऊपर से लाएं
@@ -380,11 +228,11 @@
                 setTimeout(() => {
                     moveArrowToAd();
                     
-                    // छोटा सा एनिमेशन
+                    // छोटा सा एनिमेशन (बहुत हल्का)
                     setInterval(() => {
                         if (secondsLeft > 0) {
                             // हल्का सा होवर इफेक्ट
-                            mouseArrow.style.transform = 'translateY(-2px)';
+                            mouseArrow.style.transform = 'translateY(-1px)';
                             setTimeout(() => {
                                 mouseArrow.style.transform = 'translateY(0)';
                             }, 200);
@@ -392,15 +240,13 @@
                     }, 800);
                 }, 100);
                 
-                // काउंटर शुरू करें (अब कोई विजुअल नहीं)
+                // काउंटर शुरू करें
                 updateCounter();
                 
-                // एड हाइलाइट को एनिमेट करते रहें
-                setInterval(updateAdHighlight, 100);
             }, 1000);
         });
         
-        console.log('रियल PC माउस एरो एक्टिव - 3 सेकंड में क्लिक करेगा (बिना काउंटर के)');
+        console.log('रियल PC माउस एरो एक्टिव - 3 सेकंड में क्लिक करेगा (बिना किसी इफेक्ट के)');
     </script>
 </body>
 </html>
