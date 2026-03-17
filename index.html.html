@@ -41,7 +41,7 @@
             margin-top: auto;
         }
         
-        /* रियल माउस एरो स्टाइल - PC माउस जैसा */
+        /* रियल माउस एरो स्टाइल */
         .mouse-arrow {
             position: fixed;
             width: 26px;
@@ -53,14 +53,12 @@
             will-change: transform;
         }
         
-        /* माउस एरो SVG - बिल्कुल रियल PC माउस जैसा */
         .mouse-arrow svg {
             width: 100%;
             height: 100%;
             display: block;
         }
         
-        /* एरो शैडो एफेक्ट */
         .arrow-shadow {
             position: absolute;
             top: 2px;
@@ -72,10 +70,7 @@
             filter: blur(1px);
         }
         
-        /* क्लिक रिपल इफेक्ट - पूरी तरह हटा दिया गया */
-        /* .click-effect क्लास हटा दी गई */
-        
-        /* प्रोग्रेस बार - हिडन */
+        /* प्रोग्रेस बार */
         .progress-bar {
             position: fixed;
             top: 0;
@@ -90,163 +85,229 @@
             pointer-events: none;
         }
         
-        /* काउंटर - पूरी तरह हटा दिया गया */
+        /* नोटिफिकेशन स्टाइल */
+        .click-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a3b5d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .click-notification.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
-    <!-- प्रोग्रेस बार (हिडन) -->
     <div class="progress-bar" id="progressBar"></div>
+    <div class="click-notification" id="notification">⏰ 3 सेकंड में ऑटो-क्लिक...</div>
     
     <h1>$100 Earn Click Here</h1>
 
-    <!-- एड कंटेनर -->
     <div class="ad-container">
         <div class='MainAdverTiseMentDiv' id="adElement" data-publisher="eyJpdiI6IjNBc1BlTzBEeEZBaHBLMlo1SmdBREE9PSIsInZhbHVlIjoieXhRUkRXVmU1YmkraWJkdU1xcDNkQT09IiwibWFjIjoiMDNkN2RjMWI2OThhZThmMWQzMjdjOTc0Zjc0ZjNkY2E5YTg3OTMwYzFjNTVjOTQ1NmE0MDRhNGM2YjBlZDQ5NyIsInRhZyI6IiJ9" data-adsize="250x250"></div>
     </div>
     
-    <!-- रियल PC माउस एरो - सफेद रंग का -->
     <div class="mouse-arrow" id="mouseArrow">
-        <!-- रियल माउस एरो SVG - बिल्कुल PC माउस जैसा -->
         <svg viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 2L2 27L8 21L12 26L16 22L12 17L18 17L2 2Z" 
                   fill="white" 
                   stroke="#333333" 
                   stroke-width="1.5" 
                   stroke-linejoin="round"/>
-            <!-- माउस का डिटेल (छोटी लाइन) -->
             <path d="M8 12L12 16M12 16L16 12M12 16L12 21" 
                   stroke="#666666" 
                   stroke-width="1.2" 
                   stroke-linecap="round"/>
-            <!-- हाइलाइट इफेक्ट (बहुत हल्का, लगभग अदृश्य) -->
             <circle cx="14" cy="14" r="2" fill="#0078ff" fill-opacity="0.05"/>
         </svg>
-        <!-- शैडो के लिए डुप्लिकेट -->
         <div class="arrow-shadow">
             <svg viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 2L2 27L8 21L12 26L16 22L12 17L18 17L2 2Z" fill="black"/>
             </svg>
         </div>
     </div>
-    
-    <!-- क्लिक रिपल कंटेनर - पूरी तरह हटा दिया गया -->
-    <!-- काउंटर - पूरी तरह हटा दिया गया -->
 
     <script>
-        // एड एलिमेंट को ढूंढें
-        const adElement = document.querySelector('.MainAdverTiseMentDiv');
-        const mouseArrow = document.getElementById('mouseArrow');
-        const progressBar = document.getElementById('progressBar');
-        
-        let secondsLeft = 3;
-        
-        // माउस एरो को एड की पोजीशन पर ले जाएं (स्मूथ मूवमेंट)
-        function moveArrowToAd() {
-            if (adElement) {
-                const rect = adElement.getBoundingClientRect();
-                const targetX = rect.left + (rect.width / 2) - 13; // एरो की नोक के लिए एडजस्ट
-                const targetY = rect.top + (rect.height / 2) - 20;
-                
-                // स्मूथ एनिमेशन के लिए
-                mouseArrow.style.transition = 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                mouseArrow.style.left = targetX + 'px';
-                mouseArrow.style.top = targetY + 'px';
-            }
-        }
-        
-        // क्लिक रिपल इफेक्ट फंक्शन - पूरी तरह हटा दिया गया
-        
-        // काउंटर अपडेट करें (अब सिर्फ internally)
-        function updateCounter() {
-            // प्रोग्रेस बार अपडेट करें (हिडन है तो कोई फर्क नहीं)
-            const progress = ((3 - secondsLeft) / 3) * 100;
-            progressBar.style.width = progress + '%';
+        (function() {
+            const adElement = document.querySelector('.MainAdverTiseMentDiv');
+            const mouseArrow = document.getElementById('mouseArrow');
+            const progressBar = document.getElementById('progressBar');
+            const notification = document.getElementById('notification');
             
-            if (secondsLeft > 0) {
-                secondsLeft--;
-                setTimeout(updateCounter, 1000);
-            } else {
-                // टाइमर खत्म - क्लिक करें
-                performClick();
-            }
-        }
-        
-        // क्लिक परफॉर्म करें
-        function performClick() {
-            if (adElement) {
-                // कोई इफेक्ट नहीं दिखेगा - सिर्फ क्लिक होगा
-                
-                // एरो में हल्का सा शेक इफेक्ट (बहुत हल्का)
-                mouseArrow.style.transform = 'translate(1px, 1px) scale(0.98)';
+            let secondsLeft = 3;
+            let clickAttempted = false;
+            
+            // नोटिफिकेशन दिखाएं
+            function showNotification(text) {
+                notification.textContent = text;
+                notification.classList.add('show');
                 setTimeout(() => {
-                    mouseArrow.style.transform = 'translate(0, 0) scale(1)';
-                }, 100);
+                    notification.classList.remove('show');
+                }, 2000);
+            }
+            
+            // माउस एरो को एड पर ले जाएं
+            function moveArrowToAd() {
+                if (adElement) {
+                    const rect = adElement.getBoundingClientRect();
+                    const targetX = rect.left + (rect.width / 2) - 13;
+                    const targetY = rect.top + (rect.height / 2) - 20;
+                    
+                    mouseArrow.style.transition = 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    mouseArrow.style.left = targetX + 'px';
+                    mouseArrow.style.top = targetY + 'px';
+                }
+            }
+            
+            // प्रोग्रेस बार अपडेट करें
+            function updateProgressBar() {
+                const progress = ((3 - secondsLeft) / 3) * 100;
+                progressBar.style.width = progress + '%';
+            }
+            
+            // क्लिक परफॉर्म करने का मुख्य फंक्शन
+            function performClick() {
+                if (clickAttempted) return;
+                clickAttempted = true;
                 
-                // क्लिक इवेंट भेजें
-                const clickEvent = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true
-                });
-                adElement.dispatchEvent(clickEvent);
-                
-                // एड के अंदर के लिंक ढूंढें
-                const adLinks = adElement.querySelectorAll('a');
-                if (adLinks.length > 0) {
-                    setTimeout(() => {
-                        adLinks[0].click();
-                    }, 50);
+                if (!adElement) {
+                    console.log('एड एलिमेंट नहीं मिला');
+                    return;
                 }
                 
-                // प्रोग्रेस बार का रंग बदलें (लेकिन हिडन है तो कोई फर्क नहीं)
-                progressBar.style.background = 'linear-gradient(90deg, #00ff00, #00cc00)';
+                try {
+                    // नोटिफिकेशन दिखाएं
+                    showNotification('⚡ क्लिक हो रहा है...');
+                    
+                    // एरो एनिमेशन
+                    mouseArrow.style.transform = 'translate(1px, 1px) scale(0.98)';
+                    setTimeout(() => {
+                        mouseArrow.style.transform = 'translate(0, 0) scale(1)';
+                    }, 100);
+                    
+                    // प्रोग्रेस बार अपडेट करें
+                    progressBar.style.background = 'linear-gradient(90deg, #00ff00, #00cc00)';
+                    
+                    // क्लिक इवेंट भेजें
+                    const clickEvent = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: 0,
+                        clientY: 0
+                    });
+                    
+                    // एड एलिमेंट पर क्लिक करें
+                    adElement.dispatchEvent(clickEvent);
+                    
+                    // एड के अंदर लिंक ढूंढें और क्लिक करें
+                    setTimeout(() => {
+                        const adLinks = adElement.querySelectorAll('a');
+                        adLinks.forEach(link => {
+                            try {
+                                if (link.href && !link.href.startsWith('javascript:')) {
+                                    // नई विंडो में खोलें
+                                    window.open(link.href, '_blank');
+                                }
+                            } catch (e) {
+                                console.log('लिंक क्लिक में समस्या:', e);
+                            }
+                        });
+                        
+                        // अगर कोई लिंक नहीं मिला तो पेरेंट एलिमेंट चेक करें
+                        const parentLinks = document.querySelectorAll('a[href]');
+                        parentLinks.forEach(link => {
+                            if (link.contains(adElement) || adElement.contains(link)) {
+                                try {
+                                    window.open(link.href, '_blank');
+                                } catch (e) {
+                                    console.log('पेरेंट लिंक क्लिक में समस्या:', e);
+                                }
+                            }
+                        });
+                        
+                        showNotification('✅ क्लिक सफल!');
+                    }, 100);
+                    
+                } catch (error) {
+                    console.log('क्लिक में समस्या:', error);
+                    showNotification('❌ क्लिक फेल, रीट्राई...');
+                    
+                    // फॉलबैक: डायरेक्ट नेविगेशन
+                    setTimeout(() => {
+                        window.location.href = 'https://www.google.com';
+                    }, 500);
+                }
             }
-        }
-        
-        // विंडो रिसाइज होने पर पोजीशन अपडेट करें
-        window.addEventListener('resize', () => {
-            moveArrowToAd();
-        });
-        
-        // स्क्रॉल होने पर भी अपडेट करें
-        window.addEventListener('scroll', () => {
-            moveArrowToAd();
-        });
-        
-        // पेज लोड होने पर
-        window.addEventListener('load', function() {
-            // थोड़ी देर बाद एरो को पोजीशन करें
-            setTimeout(() => {
-                moveArrowToAd();
+            
+            // टाइमर फंक्शन
+            function updateCounter() {
+                updateProgressBar();
                 
-                // पहले एरो को ऊपर से लाएं
-                mouseArrow.style.transition = 'none';
-                mouseArrow.style.left = '50%';
-                mouseArrow.style.top = '20%';
-                
-                // फिर स्मूथली एड पर ले जाएं
+                if (secondsLeft > 0) {
+                    // नोटिफिकेशन अपडेट करें
+                    showNotification(`⏰ ${secondsLeft} सेकंड में क्लिक...`);
+                    
+                    // एरो को हल्का हिलाएं
+                    mouseArrow.style.transform = 'translateY(-1px)';
+                    setTimeout(() => {
+                        mouseArrow.style.transform = 'translateY(0)';
+                    }, 200);
+                    
+                    secondsLeft--;
+                    setTimeout(updateCounter, 1000);
+                } else {
+                    // टाइमर खत्म
+                    notification.textContent = '⚡ क्लिक हो रहा है...';
+                    performClick();
+                }
+            }
+            
+            // विंडो रिसाइज और स्क्रॉल हैंडलर
+            window.addEventListener('resize', moveArrowToAd);
+            window.addEventListener('scroll', moveArrowToAd);
+            
+            // पेज लोड होने पर
+            window.addEventListener('load', function() {
                 setTimeout(() => {
                     moveArrowToAd();
                     
-                    // छोटा सा एनिमेशन (बहुत हल्का)
-                    setInterval(() => {
-                        if (secondsLeft > 0) {
-                            // हल्का सा होवर इफेक्ट
-                            mouseArrow.style.transform = 'translateY(-1px)';
-                            setTimeout(() => {
-                                mouseArrow.style.transform = 'translateY(0)';
-                            }, 200);
-                        }
-                    }, 800);
-                }, 100);
-                
-                // काउंटर शुरू करें
-                updateCounter();
-                
-            }, 1000);
-        });
-        
-        console.log('रियल PC माउस एरो एक्टिव - 3 सेकंड में क्लिक करेगा (बिना किसी इफेक्ट के)');
+                    mouseArrow.style.transition = 'none';
+                    mouseArrow.style.left = '50%';
+                    mouseArrow.style.top = '20%';
+                    
+                    setTimeout(() => {
+                        moveArrowToAd();
+                        
+                        // शुरू करें
+                        updateCounter();
+                        
+                    }, 100);
+                    
+                }, 1000);
+            });
+            
+            // यूजर इंटरैक्शन डिटेक्ट करें
+            document.addEventListener('click', function() {
+                // अगर यूजर ने क्लिक किया और टाइमर अभी चल रहा है
+                if (secondsLeft > 0 && !clickAttempted) {
+                    secondsLeft = 1; // टाइमर तेज करें
+                }
+            }, { once: true });
+            
+            console.log('ऑटो-क्लिक सिस्टम एक्टिव - 3 सेकंड में क्लिक करेगा');
+            
+        })();
     </script>
 </body>
 </html>
