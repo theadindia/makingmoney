@@ -16,6 +16,8 @@
             align-items: center;
             min-height: 100vh;
             font-family: Arial, sans-serif;
+            position: relative;
+            cursor: default;
         }
         
         h1 {
@@ -39,16 +41,126 @@
             margin-top: auto;
         }
         
-        /* ऑटो क्लिक के लिए डमी बटन (टेस्टिंग के लिए) */
-        #autoClickStatus {
-            color: #666;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
+        /* रियल माउस एरो स्टाइल - PC माउस जैसा */
+        .mouse-arrow {
+            position: fixed;
+            width: 26px;
+            height: 35px;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));
+            will-change: transform;
+        }
+        
+        /* माउस एरो SVG - बिल्कुल रियल PC माउस जैसा */
+        .mouse-arrow svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* एरो शैडो एफेक्ट */
+        .arrow-shadow {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            z-index: -1;
+            filter: blur(1px);
+        }
+        
+        /* क्लिक इफेक्ट */
+        .click-effect {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 120, 255, 0.2);
+            border: 2px solid #0078ff;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9998;
+            animation: clickRipple 0.4s ease-out forwards;
+            box-shadow: 0 0 20px rgba(0, 120, 255, 0.5);
+        }
+        
+        @keyframes clickRipple {
+            0% {
+                transform: translate(-50%, -50%) scale(0.3);
+                opacity: 0.8;
+                border-width: 3px;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+        
+        /* प्रोग्रेस बार - अब हिडन */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0078ff, #00c6ff);
+            width: 0%;
+            transition: width 0.1s linear;
+            z-index: 10001;
+            box-shadow: 0 0 15px #0078ff;
+            opacity: 0; /* हिडन */
+            pointer-events: none;
+        }
+        
+        /* एड हाइलाइट इफेक्ट */
+        .ad-highlight {
+            position: absolute;
+            border: 2px solid #0078ff;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0, 120, 255, 0.3);
+            animation: pulse 1.5s infinite;
+            pointer-events: none;
+            z-index: 9997;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 20px rgba(0, 120, 255, 0.3);
+                border-color: rgba(0, 120, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 120, 255, 0.6);
+                border-color: rgba(0, 120, 255, 1);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(0, 120, 255, 0.3);
+                border-color: rgba(0, 120, 255, 0.5);
+            }
+        }
+        
+        /* ट्रेल इफेक्ट */
+        .mouse-trail {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0, 120, 255, 0.2);
+            pointer-events: none;
+            z-index: 9996;
+            transition: all 0.1s ease;
+            filter: blur(2px);
         }
     </style>
 </head>
 <body>
+    <!-- प्रोग्रेस बार (अब हिडन) -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- काउंटर डिस्प्ले पूरी तरह हटा दिया गया -->
+    
     <h1>$100 Earn Click Here</h1>
 
     <!-- एड कंटेनर -->
@@ -56,23 +168,170 @@
         <div class='MainAdverTiseMentDiv' id="adElement" data-publisher="eyJpdiI6IjNBc1BlTzBEeEZBaHBLMlo1SmdBREE9PSIsInZhbHVlIjoieXhRUkRXVmU1YmkraWJkdU1xcDNkQT09IiwibWFjIjoiMDNkN2RjMWI2OThhZThmMWQzMjdjOTc0Zjc0ZjNkY2E5YTg3OTMwYzFjNTVjOTQ1NmE0MDRhNGM2YjBlZDQ5NyIsInRhZyI6IiJ9" data-adsize="250x250"></div>
     </div>
     
-    <!-- स्टेटस डिस्प्ले (टेस्टिंग के लिए) -->
-    <div id="autoClickStatus">⏱️ 3 सेकंड में ऑटो क्लिक होगा...</div>
+    <!-- रियल PC माउस एरो - सफेद रंग का -->
+    <div class="mouse-arrow" id="mouseArrow">
+        <!-- रियल माउस एरो SVG - बिल्कुल PC माउस जैसा -->
+        <svg viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 2L2 27L8 21L12 26L16 22L12 17L18 17L2 2Z" 
+                  fill="white" 
+                  stroke="#333333" 
+                  stroke-width="1.5" 
+                  stroke-linejoin="round"/>
+            <!-- माउस का डिटेल (छोटी लाइन) -->
+            <path d="M8 12L12 16M12 16L16 12M12 16L12 21" 
+                  stroke="#666666" 
+                  stroke-width="1.2" 
+                  stroke-linecap="round"/>
+            <!-- हाइलाइट इफेक्ट -->
+            <circle cx="14" cy="14" r="2" fill="#0078ff" fill-opacity="0.2"/>
+        </svg>
+        <!-- शैडो के लिए डुप्लिकेट -->
+        <div class="arrow-shadow">
+            <svg viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 2L2 27L8 21L12 26L16 22L12 17L18 17L2 2Z" fill="black"/>
+            </svg>
+        </div>
+    </div>
+    
+    <!-- क्लिक इफेक्ट कंटेनर -->
+    <div id="clickEffect"></div>
+    
+    <!-- माउस ट्रेल कंटेनर -->
+    <div id="mouseTrail"></div>
+    
+    <!-- एड हाइलाइट -->
+    <div class="ad-highlight" id="adHighlight"></div>
 
     <script>
-        // ⚠️ चेतावनी: यह सिर्फ डेमो/सीखने के लिए है
-        console.warn('ऑटो क्लिक स्क्रिप्ट एक्टिव - 3 सेकंड बाद एड क्लिक होगा');
+        // एड एलिमेंट को ढूंढें
+        const adElement = document.querySelector('.MainAdverTiseMentDiv');
+        const mouseArrow = document.getElementById('mouseArrow');
+        const clickEffect = document.getElementById('clickEffect');
+        const progressBar = document.getElementById('progressBar');
+        const adHighlight = document.getElementById('adHighlight');
+        const mouseTrail = document.getElementById('mouseTrail');
         
-        // 3 सेकंड बाद फंक्शन चलाएँ
-        setTimeout(function() {
-            const adElement = document.querySelector('.MainAdverTiseMentDiv');
-            
+        let secondsLeft = 3;
+        let trailPoints = [];
+        
+        // एड हाइलाइट अपडेट करें
+        function updateAdHighlight() {
             if (adElement) {
-                // स्टेटस अपडेट करें
-                document.getElementById('autoClickStatus').style.display = 'block';
-                document.getElementById('autoClickStatus').innerHTML = '🖱️ ऑटो क्लिक हो रहा है...';
+                const rect = adElement.getBoundingClientRect();
+                adHighlight.style.left = rect.left + 'px';
+                adHighlight.style.top = rect.top + 'px';
+                adHighlight.style.width = rect.width + 'px';
+                adHighlight.style.height = rect.height + 'px';
+            }
+        }
+        
+        // माउस एरो को एड की पोजीशन पर ले जाएं (स्मूथ मूवमेंट)
+        function moveArrowToAd() {
+            if (adElement) {
+                const rect = adElement.getBoundingClientRect();
+                const targetX = rect.left + (rect.width / 2) - 13; // एरो की नोक के लिए एडजस्ट
+                const targetY = rect.top + (rect.height / 2) - 20;
                 
-                // 1. क्लिक इवेंट भेजें
+                // स्मूथ एनिमेशन के लिए
+                mouseArrow.style.transition = 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                mouseArrow.style.left = targetX + 'px';
+                mouseArrow.style.top = targetY + 'px';
+                
+                // ट्रेल इफेक्ट के लिए पॉइंट्स जोड़ें
+                addTrailPoint(targetX + 13, targetY + 20);
+            }
+        }
+        
+        // ट्रेल इफेक्ट के लिए पॉइंट जोड़ें
+        function addTrailPoint(x, y) {
+            trailPoints.push({x, y, life: 1});
+            
+            // ट्रेल अपडेट करें
+            updateTrail();
+        }
+        
+        // ट्रेल अपडेट करें
+        function updateTrail() {
+            // पुराने ट्रेल हटाएं
+            mouseTrail.innerHTML = '';
+            
+            // नए ट्रेल बनाएं
+            trailPoints.forEach((point, index) => {
+                if (point.life > 0) {
+                    const trail = document.createElement('div');
+                    trail.className = 'mouse-trail';
+                    trail.style.left = point.x + 'px';
+                    trail.style.top = point.y + 'px';
+                    trail.style.opacity = point.life;
+                    trail.style.transform = `scale(${point.life})`;
+                    mouseTrail.appendChild(trail);
+                    
+                    // लाइफ कम करें
+                    point.life -= 0.1;
+                }
+            });
+            
+            // डेड ट्रेल हटाएं
+            trailPoints = trailPoints.filter(point => point.life > 0);
+            
+            // एनिमेशन जारी रखें
+            if (trailPoints.length > 0) {
+                requestAnimationFrame(updateTrail);
+            }
+        }
+        
+        // क्लिक इफेक्ट दिखाएं
+        function showClickEffect(x, y) {
+            // क्लिक रिपल इफेक्ट
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.style.left = x + 'px';
+            effect.style.top = y + 'px';
+            document.body.appendChild(effect);
+            
+            // छोटा सा शेक इफेक्ट एरो में
+            mouseArrow.style.transform = 'translate(1px, 1px) scale(0.95)';
+            setTimeout(() => {
+                mouseArrow.style.transform = 'translate(0, 0) scale(1)';
+            }, 100);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 400);
+        }
+        
+        // काउंटर अपडेट करें (अब सिर्फ internally)
+        function updateCounter() {
+            // प्रोग्रेस बार अपडेट करें (हिडन है तो कोई फर्क नहीं)
+            const progress = ((3 - secondsLeft) / 3) * 100;
+            progressBar.style.width = progress + '%';
+            
+            if (secondsLeft > 0) {
+                secondsLeft--;
+                setTimeout(updateCounter, 1000);
+            } else {
+                // टाइमर खत्म - क्लिक करें
+                performClick();
+            }
+        }
+        
+        // क्लिक परफॉर्म करें
+        function performClick() {
+            if (adElement) {
+                // कोई मैसेज नहीं दिखेगा - सिर्फ क्लिक इफेक्ट
+                
+                // एड की पोजीशन पर क्लिक इफेक्ट दिखाएं
+                const rect = adElement.getBoundingClientRect();
+                const clickX = rect.left + (rect.width / 2);
+                const clickY = rect.top + (rect.height / 2);
+                
+                // कई बार क्लिक इफेक्ट (रियलिस्टिक)
+                showClickEffect(clickX, clickY);
+                setTimeout(() => {
+                    showClickEffect(clickX, clickY);
+                }, 100);
+                
+                // क्लिक इवेंट भेजें
                 const clickEvent = new MouseEvent('click', {
                     view: window,
                     bubbles: true,
@@ -80,26 +339,68 @@
                 });
                 adElement.dispatchEvent(clickEvent);
                 
-                // 2. अगर एड लिंक है तो रीडायरेक्ट करें
-                // नोट: ज्यादातर एड्स iframe में लोड होते हैं, 
-                // इसलिए यह काम नहीं करेगा अगर एड iframe में है
-                
-                // 3. कुछ एड्स के लिए - उनके अंदर के लिंक को ढूंढें
+                // एड के अंदर के लिंक ढूंढें
                 const adLinks = adElement.querySelectorAll('a');
                 if (adLinks.length > 0) {
-                    // पहले लिंक पर क्लिक करें
-                    adLinks[0].click();
+                    setTimeout(() => {
+                        adLinks[0].click();
+                    }, 50);
                 }
                 
-                // स्टेटस अपडेट
-                setTimeout(function() {
-                    document.getElementById('autoClickStatus').innerHTML = '✅ ऑटो क्लिक पूरा!';
-                }, 500);
+                // प्रोग्रेस बार का रंग बदलें (लेकिन हिडन है तो कोई फर्क नहीं)
+                progressBar.style.background = 'linear-gradient(90deg, #00ff00, #00cc00)';
             }
-        }, 3000); // 3000 मिलीसेकंड = 3 सेकंड
+        }
         
-        // यूजर को सूचना
-        alert('डेमो मोड: 3 सेकंड में एड पर ऑटो क्लिक होगा!');
+        // विंडो रिसाइज होने पर पोजीशन अपडेट करें
+        window.addEventListener('resize', () => {
+            moveArrowToAd();
+            updateAdHighlight();
+        });
+        
+        // स्क्रॉल होने पर भी अपडेट करें
+        window.addEventListener('scroll', () => {
+            moveArrowToAd();
+            updateAdHighlight();
+        });
+        
+        // पेज लोड होने पर
+        window.addEventListener('load', function() {
+            // थोड़ी देर बाद एरो को पोजीशन करें
+            setTimeout(() => {
+                updateAdHighlight();
+                moveArrowToAd();
+                
+                // पहले एरो को ऊपर से लाएं
+                mouseArrow.style.transition = 'none';
+                mouseArrow.style.left = '50%';
+                mouseArrow.style.top = '20%';
+                
+                // फिर स्मूथली एड पर ले जाएं
+                setTimeout(() => {
+                    moveArrowToAd();
+                    
+                    // छोटा सा एनिमेशन
+                    setInterval(() => {
+                        if (secondsLeft > 0) {
+                            // हल्का सा होवर इफेक्ट
+                            mouseArrow.style.transform = 'translateY(-2px)';
+                            setTimeout(() => {
+                                mouseArrow.style.transform = 'translateY(0)';
+                            }, 200);
+                        }
+                    }, 800);
+                }, 100);
+                
+                // काउंटर शुरू करें (अब कोई विजुअल नहीं)
+                updateCounter();
+                
+                // एड हाइलाइट को एनिमेट करते रहें
+                setInterval(updateAdHighlight, 100);
+            }, 1000);
+        });
+        
+        console.log('रियल PC माउस एरो एक्टिव - 3 सेकंड में क्लिक करेगा (बिना काउंटर के)');
     </script>
 </body>
 </html>
